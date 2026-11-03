@@ -3,8 +3,10 @@ package com.portfolio.automation.utils;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.chrome.ChromeOptions;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,6 +14,9 @@ public final class DriverFactory {
 
     private static final ThreadLocal<WebDriver> DRIVER =
             new ThreadLocal<>();
+
+    private static final String CHROMEDRIVER_PATH =
+            "C:\\WebDriver\\chromedriver.exe";
 
     private DriverFactory() {
     }
@@ -50,7 +55,33 @@ public final class DriverFactory {
                 preferences
         );
 
-        WebDriver driver = new ChromeDriver(options);
+        File driverFile = new File(CHROMEDRIVER_PATH);
+
+        WebDriver driver;
+
+        if (driverFile.isFile()) {
+
+            System.out.println(
+                    "Using locally installed ChromeDriver: "
+                            + driverFile.getAbsolutePath()
+            );
+
+            ChromeDriverService service =
+                    new ChromeDriverService.Builder()
+                            .usingDriverExecutable(driverFile)
+                            .build();
+
+            driver = new ChromeDriver(service, options);
+
+        } else {
+
+            System.out.println(
+                    "Local ChromeDriver not found. "
+                            + "Using Selenium Manager."
+            );
+
+            driver = new ChromeDriver(options);
+        }
 
         DRIVER.set(driver);
     }
